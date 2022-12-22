@@ -62,7 +62,8 @@ def get_html(html_name):
 
 
 while True:  
-    
+
+
     try:
         cl, addr = s.accept()
         print('client connected from', addr)

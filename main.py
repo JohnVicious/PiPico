@@ -6,6 +6,7 @@ from machine import Pin, ADC
 from PicoDHT22 import PicoDHT22
 from projects.TransitorTemp import TransitorTemp
 from projects.DHTTemp import DHTTemp
+from projects.SocketTemperature import SocketTemperature
 
 board_led = led(Pin("LED", Pin.OUT))
 board_buzzer = buzzer(Pin(1, Pin.OUT))
@@ -24,8 +25,9 @@ dht_sensor=PicoDHT22(Pin(28,Pin.IN,Pin.PULL_UP),dht11=True)
 
 
 #Main.py has started, show board LED and display
-board_led.on()
 digital_display.scroll('ready')
+board_led.on()
+print('READY!')
 
 #Wait for a button press to determine which "program" to run
 while True:    
@@ -37,6 +39,7 @@ while True:
         TransitorTemp(transistor_sensor,digital_display,board_led,btn4).startProject()          
         board_buzzer.beep()
         led4.off()
+        print('Exiting project A...')
         digital_display.scroll('ready')
 
     if btn2.triggered(): #Digit display temperature using DHT11
@@ -46,8 +49,17 @@ while True:
         DHTTemp(dht_sensor,digital_display,board_led,btn4).startProject()          
         board_buzzer.beep()
         led3.off()
+        print('Exiting project B...')
         digital_display.scroll('ready')
 
     if btn3.triggered(): #Digit display temperature using DHT over Socket server
         print('Starting project C...')
+        led2.on()
+        board_buzzer.beep()  
+        SocketTemperature(dht_sensor,digital_display,board_led,btn4).startProject()    
+        board_buzzer.beep()
+        led2.off()
+        print('Exiting project C...')
+        digital_display.scroll('ready')
+
 
