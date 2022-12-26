@@ -5,14 +5,19 @@ from projects.networkcredentials import net_cred
 
 class SocketTemperature:
 
-    def __init__(self,dht_sensor,digital_display,board_led,exit_btn):
+    def __init__(self,dht_sensor,digital_display,i2cdisplay,board_led,exit_btn):
         self.dht_sensor = dht_sensor
         self.digital_display = digital_display
+        self.i2cdisplay = i2cdisplay
         self.board_led = board_led
         self.exit_btn = exit_btn
+        self.ip_address = 0
 
     def startProject(self):        
         self.digital_display.show('load')
+        self.i2cdisplay.fill(0)
+        self.i2cdisplay.text('Loading!', 0, 0, 1)
+        self.i2cdisplay.show()
         time.sleep_ms(750)
         
         self.networkConnection()
@@ -27,6 +32,7 @@ class SocketTemperature:
                 Ctemp = T
                 Ftemp = int(str((Ctemp * 1.8) + 32)[:2])
                 self.digital_display.temperature(Ftemp)
+                self.updateI2CDisplay(Ftemp,H)
                 self.board_led.toggle()
 
             try:
@@ -35,6 +41,7 @@ class SocketTemperature:
                 
                 socket_connection.settimeout(1.0)
                 cl, addr = socket_connection.accept()
+                self.ip_address = addr
                 print('client connected from', addr)
                 cl_file = cl.makefile('rwb', 0)   
                 
@@ -51,6 +58,15 @@ class SocketTemperature:
                 
             except OSError as e:
                 print(e)
+
+    def updateI2CDisplay(self,temperature,humidity):
+        self.i2cdisplay.fill(0)
+        self.i2cdisplay.text('Temp: ' + str(temperature) + 'F', 0, 0, 1)
+        self.i2cdisplay.text('Humidity: ' + str(humidity) + '%', 0, 10, 1)
+        self.i2cdisplay.text('Network:', 0, 30, 1)
+        self.i2cdisplay.text(str(self.ip_address), 0, 40, 1)
+        self.i2cdisplay.text('K4 To Exit =>', 0, 50, 1)
+        self.i2cdisplay.show()
 
     # Function to load in html page    
     def get_html(self,html_name):
@@ -87,3 +103,4 @@ class SocketTemperature:
             print('connected')
             status = wlan.ifconfig()
             print( 'ip = ' + status[0] )
+            self.ip_address = status[0]
