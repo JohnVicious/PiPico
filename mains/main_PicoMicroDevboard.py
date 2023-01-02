@@ -14,21 +14,25 @@ i2cdisplay = SSD1306_I2C(128, 64, I2C(0, sda=Pin(0), scl=Pin(1), freq=400000))
 photo_sensor = ADC(26)
 
 #Show startup
+board_led.off()
 i2cdisplay.fill(0)
 i2cdisplay.text('Loading!', 0, 0, 1)
 i2cdisplay.show()
 time.sleep_ms(1000)
 
 while True:
-    board_led.toggle()
     photons = photo_sensor.read_u16()
 
-    lightStatus = 'off'
     if photons > 10000:
         lightStatus = 'on'
+        board_led.on()
+    else:
+        lightStatus = 'off'
+        board_led.off()
+
 
     i2cdisplay.fill(0)
-    i2cdisplay.text('Light is ' + str(lightStatus), 0, 20, 1)
+    i2cdisplay.text('Light is ' + str(lightStatus), 0, 30, 1)
     i2cdisplay.show()
 
     time.sleep_ms(1000)
